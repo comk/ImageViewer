@@ -1,6 +1,10 @@
 package com.yiguo.daihai.imageviewer;
 
 import android.content.Context;
+import android.support.v4.view.ViewPager;
+import android.support.v7.widget.LinearLayoutCompat;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
@@ -33,19 +37,50 @@ public class ImageViewer extends LinearLayout{
 
     public void initImageViewer(ImageViewConfig config){
         this.config = config;
-
-
         if(LinearLayout.HORIZONTAL == config.direction){ //水平方向
+            this.setOrientation(LinearLayout.HORIZONTAL);
             if(ThumbnailsPosition.POSITION_LEFT == config.thumbnailsPosition){
+                RecyclerView recyclerView = new RecyclerView(getContext());
+                RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
+                recyclerView.setLayoutManager(layoutManager);
+
+                this.addView(recyclerView,new LayoutParams(0, LayoutParams.WRAP_CONTENT,config.thumbnailsPercentage));
+
+                ViewPager viewPager = new ViewPager(getContext());
+                this.addView(viewPager,new LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT,1f - config.thumbnailsPercentage));
 
             }else if(ThumbnailsPosition.POSITION_RIGHT == config.thumbnailsPosition){
 
+                ViewPager viewPager = new ViewPager(getContext());
+                this.addView(viewPager,new LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT,1f - config.thumbnailsPercentage));
+
+                RecyclerView recyclerView = new RecyclerView(getContext());
+                RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
+                recyclerView.setLayoutManager(layoutManager);
+
+                this.addView(recyclerView,new LayoutParams(0, LayoutParams.WRAP_CONTENT,config.thumbnailsPercentage));
+
             }
         }else if(LinearLayout.VERTICAL == config.direction){//垂直方向
+            this.setOrientation(LinearLayout.VERTICAL);
             if(ThumbnailsPosition.POSITION_TOP == config.thumbnailsPosition){
+                RecyclerView recyclerView = new RecyclerView(getContext());
+                RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
+                recyclerView.setLayoutManager(layoutManager);
 
+                this.addView(recyclerView,new LayoutParams(0, LayoutParams.WRAP_CONTENT,config.thumbnailsPercentage));
+
+                ViewPager viewPager = new ViewPager(getContext());
+                this.addView(viewPager,new LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT,1f - config.thumbnailsPercentage));
             }else if(ThumbnailsPosition.POSITION_BOTTOM == config.thumbnailsPosition){
+                ViewPager viewPager = new ViewPager(getContext());
+                this.addView(viewPager,new LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT,1f - config.thumbnailsPercentage));
 
+                RecyclerView recyclerView = new RecyclerView(getContext());
+                RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
+                recyclerView.setLayoutManager(layoutManager);
+
+                this.addView(recyclerView,new LayoutParams(0, LayoutParams.WRAP_CONTENT,config.thumbnailsPercentage));
             }
         }
 
