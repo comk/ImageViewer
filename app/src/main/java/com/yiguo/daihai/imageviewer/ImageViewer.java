@@ -13,12 +13,35 @@ import java.util.ArrayList;
 /**
  * Created by daihai on 2015/3/11.
  */
-public class ImageViewer extends LinearLayout implements ViewPager.OnPageChangeListener{
+public class ImageViewer extends LinearLayout implements ViewPager.OnPageChangeListener,BigImageViewPagerAdapter.OnItemOptionListener{
     private ImageViewConfig config;
     private FixedViewPager viewPager;
     private RecyclerView recyclerView;
     private LinearLayoutManager linearLayoutManager;
     private int lastItem = 0;
+
+    @Override
+    public void onItemDelete(int pos) {
+        linearLayoutManager.removeViewAt(pos);
+        ((ThumbnailsRecyclerAdapter)recyclerView.getAdapter()).remove(pos);
+        recyclerView.getAdapter().notifyItemRemoved(pos);
+    }
+
+    @Override
+    public void onItemLike(int pos) {
+
+    }
+
+    @Override
+    public void onItemComment(int pos) {
+
+    }
+
+    @Override
+    public void onItemSave(int pos) {
+
+    }
+
     @Override
     public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
 
@@ -70,7 +93,7 @@ public class ImageViewer extends LinearLayout implements ViewPager.OnPageChangeL
                 this.addView(recyclerView,new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT,config.thumbnailsPercentage));
 
                 viewPager = new FixedViewPager(getContext());
-                viewPager.setAdapter(new BigImageViewPagerAdapter(getContext(),config.bigImages));
+                viewPager.setAdapter(new BigImageViewPagerAdapter(getContext(),config.bigImages,config.isScaleable,this));
                 viewPager.setOnPageChangeListener(this);
                 this.addView(viewPager,new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT,1f - config.thumbnailsPercentage));
 
@@ -84,7 +107,7 @@ public class ImageViewer extends LinearLayout implements ViewPager.OnPageChangeL
             }else if(ThumbnailsPosition.POSITION_RIGHT == config.thumbnailsPosition){
 
                 viewPager = new FixedViewPager(getContext());
-                viewPager.setAdapter(new BigImageViewPagerAdapter(getContext(),config.bigImages));
+                viewPager.setAdapter(new BigImageViewPagerAdapter(getContext(),config.bigImages,config.isScaleable,this));
                 viewPager.setOnPageChangeListener(this);
                 this.addView(viewPager,new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT,1f - config.thumbnailsPercentage));
 
@@ -112,7 +135,7 @@ public class ImageViewer extends LinearLayout implements ViewPager.OnPageChangeL
                 this.addView(recyclerView,new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT,config.thumbnailsPercentage));
 
                 viewPager = new FixedViewPager(getContext());
-                viewPager.setAdapter(new BigImageViewPagerAdapter(getContext(),config.bigImages));
+                viewPager.setAdapter(new BigImageViewPagerAdapter(getContext(),config.bigImages,config.isScaleable,this));
                 viewPager.setOnPageChangeListener(this);
                 this.addView(viewPager,new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT,1f - config.thumbnailsPercentage));
                 recyclerView.setAdapter(new ThumbnailsRecyclerAdapter(getContext(),config.getThumbnails(),new ThumbnailsRecyclerAdapter.OnItemClickListener() {
@@ -123,7 +146,7 @@ public class ImageViewer extends LinearLayout implements ViewPager.OnPageChangeL
                 }));
             }else if(ThumbnailsPosition.POSITION_BOTTOM == config.thumbnailsPosition){
                 viewPager = new FixedViewPager(getContext());
-                viewPager.setAdapter(new BigImageViewPagerAdapter(getContext(), config.bigImages));
+                viewPager.setAdapter(new BigImageViewPagerAdapter(getContext(), config.bigImages,config.isScaleable,this));
                 viewPager.setOnPageChangeListener(this);
                 this.addView(viewPager,new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT,config.thumbnailsPercentage));
 
