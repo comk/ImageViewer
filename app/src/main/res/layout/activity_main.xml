@@ -5,7 +5,7 @@
 
     <com.yiguo.daihai.imageviewer.ImageViewer
         android:layout_width="match_parent"
-        android:background="@android:color/darker_gray"
+        android:background="@android:color/black"
         android:id="@+id/imageviewer"
         android:layout_height="match_parent">
 
