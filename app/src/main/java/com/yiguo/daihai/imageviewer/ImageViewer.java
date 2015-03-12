@@ -2,20 +2,50 @@ package com.yiguo.daihai.imageviewer;
 
 import android.content.Context;
 import android.support.v4.view.ViewPager;
-import android.support.v7.widget.LinearLayoutCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
-import android.view.ViewGroup;
+import android.view.View;
 import android.widget.LinearLayout;
+
+import java.util.ArrayList;
 
 /**
  * Created by daihai on 2015/3/11.
  */
-public class ImageViewer extends LinearLayout{
-    private static ImageViewer instance;
-
+public class ImageViewer extends LinearLayout implements ViewPager.OnPageChangeListener{
     private ImageViewConfig config;
+    private FixedViewPager viewPager;
+    private RecyclerView recyclerView;
+    private LinearLayoutManager linearLayoutManager;
+    private int lastItem = 0;
+    @Override
+    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+    }
+
+    @Override
+    public void onPageSelected(int position) {
+        if(linearLayoutManager != null && recyclerView != null){
+            if(lastItem > position){
+                int firstVisibleItem = linearLayoutManager.findFirstCompletelyVisibleItemPosition();
+                if(firstVisibleItem == position)
+                    return ;
+                recyclerView.smoothScrollBy(-recyclerView.getChildAt(0).getWidth()*(firstVisibleItem - position),0);
+            }else{
+                int lastVisibleItem = linearLayoutManager.findLastCompletelyVisibleItemPosition();
+                if( lastVisibleItem == position)
+                    return;
+                recyclerView.smoothScrollBy(recyclerView.getChildAt(0).getWidth()*(position - lastVisibleItem),0);
+            }
+        }
+        lastItem = position;
+    }
+
+    @Override
+    public void onPageScrollStateChanged(int state) {
+
+    }
 
     public ImageViewer(Context context) {
         super(context);
@@ -25,66 +55,92 @@ public class ImageViewer extends LinearLayout{
         super(context, attrs);
     }
 
-    public static ImageViewer getInstance(Context context){
-        if(instance == null) {
-            if(context != null)
-                instance = new ImageViewer(context);
-            else
-                throw new NullPointerException("Context can not be null");
-        }
-        return instance;
-    }
+
 
     public void initImageViewer(ImageViewConfig config){
         this.config = config;
         if(LinearLayout.HORIZONTAL == config.direction){ //水平方向
             this.setOrientation(LinearLayout.HORIZONTAL);
             if(ThumbnailsPosition.POSITION_LEFT == config.thumbnailsPosition){
-                RecyclerView recyclerView = new RecyclerView(getContext());
-                RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
-                recyclerView.setLayoutManager(layoutManager);
+                recyclerView = new RecyclerView(getContext());
+                linearLayoutManager = new LinearLayoutManager(getContext());
+                linearLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
+                recyclerView.setLayoutManager(linearLayoutManager);
+                recyclerView.setHasFixedSize(true);
+                this.addView(recyclerView,new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT,config.thumbnailsPercentage));
 
-                this.addView(recyclerView,new LayoutParams(0, LayoutParams.WRAP_CONTENT,config.thumbnailsPercentage));
+                viewPager = new FixedViewPager(getContext());
+                viewPager.setAdapter(new BigImageViewPagerAdapter(getContext(),config.bigImages));
+                viewPager.setOnPageChangeListener(this);
+                this.addView(viewPager,new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT,1f - config.thumbnailsPercentage));
 
-                ViewPager viewPager = new ViewPager(getContext());
-                this.addView(viewPager,new LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT,1f - config.thumbnailsPercentage));
+                recyclerView.setAdapter(new ThumbnailsRecyclerAdapter(getContext(),config.getThumbnails(),new ThumbnailsRecyclerAdapter.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(View view, int position) {
+                        viewPager.setCurrentItem(position,true);
+                    }
+                }));
 
             }else if(ThumbnailsPosition.POSITION_RIGHT == config.thumbnailsPosition){
 
-                ViewPager viewPager = new ViewPager(getContext());
-                this.addView(viewPager,new LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT,1f - config.thumbnailsPercentage));
+                viewPager = new FixedViewPager(getContext());
+                viewPager.setAdapter(new BigImageViewPagerAdapter(getContext(),config.bigImages));
+                viewPager.setOnPageChangeListener(this);
+                this.addView(viewPager,new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT,1f - config.thumbnailsPercentage));
 
-                RecyclerView recyclerView = new RecyclerView(getContext());
-                RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
-                recyclerView.setLayoutManager(layoutManager);
-
-                this.addView(recyclerView,new LayoutParams(0, LayoutParams.WRAP_CONTENT,config.thumbnailsPercentage));
-
+                recyclerView = new RecyclerView(getContext());
+                linearLayoutManager = new LinearLayoutManager(getContext());
+                linearLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
+                recyclerView.setLayoutManager(linearLayoutManager);
+                recyclerView.setHasFixedSize(true);
+                this.addView(recyclerView,new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT,config.thumbnailsPercentage));
+                recyclerView.setAdapter(new ThumbnailsRecyclerAdapter(getContext(),config.getThumbnails(),new ThumbnailsRecyclerAdapter.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(View view, int position) {
+                        viewPager.setCurrentItem(position,true);
+                    }
+                }));
             }
         }else if(LinearLayout.VERTICAL == config.direction){//垂直方向
             this.setOrientation(LinearLayout.VERTICAL);
             if(ThumbnailsPosition.POSITION_TOP == config.thumbnailsPosition){
-                RecyclerView recyclerView = new RecyclerView(getContext());
-                RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
-                recyclerView.setLayoutManager(layoutManager);
+                recyclerView = new RecyclerView(getContext());
+                linearLayoutManager = new LinearLayoutManager(getContext());
+                linearLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
+                recyclerView.setLayoutManager(linearLayoutManager);
+                recyclerView.setHasFixedSize(true);
+                this.addView(recyclerView,new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT,config.thumbnailsPercentage));
 
-                this.addView(recyclerView,new LayoutParams(0, LayoutParams.WRAP_CONTENT,config.thumbnailsPercentage));
-
-                ViewPager viewPager = new ViewPager(getContext());
-                this.addView(viewPager,new LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT,1f - config.thumbnailsPercentage));
+                viewPager = new FixedViewPager(getContext());
+                viewPager.setAdapter(new BigImageViewPagerAdapter(getContext(),config.bigImages));
+                viewPager.setOnPageChangeListener(this);
+                this.addView(viewPager,new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT,1f - config.thumbnailsPercentage));
+                recyclerView.setAdapter(new ThumbnailsRecyclerAdapter(getContext(),config.getThumbnails(),new ThumbnailsRecyclerAdapter.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(View view, int position) {
+                        viewPager.setCurrentItem(position,true);
+                    }
+                }));
             }else if(ThumbnailsPosition.POSITION_BOTTOM == config.thumbnailsPosition){
-                ViewPager viewPager = new ViewPager(getContext());
-                this.addView(viewPager,new LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT,1f - config.thumbnailsPercentage));
+                viewPager = new FixedViewPager(getContext());
+                viewPager.setAdapter(new BigImageViewPagerAdapter(getContext(), config.bigImages));
+                viewPager.setOnPageChangeListener(this);
+                this.addView(viewPager,new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT,config.thumbnailsPercentage));
 
-                RecyclerView recyclerView = new RecyclerView(getContext());
-                RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
-                recyclerView.setLayoutManager(layoutManager);
-
-                this.addView(recyclerView,new LayoutParams(0, LayoutParams.WRAP_CONTENT,config.thumbnailsPercentage));
+                recyclerView = new RecyclerView(getContext());
+                linearLayoutManager = new LinearLayoutManager(getContext());
+                linearLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
+                recyclerView.setLayoutManager(linearLayoutManager);
+                recyclerView.setHasFixedSize(true);
+                this.addView(recyclerView,new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT,1f - config.thumbnailsPercentage));
+                recyclerView.setAdapter(new ThumbnailsRecyclerAdapter(getContext(),config.getThumbnails(),new ThumbnailsRecyclerAdapter.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(View view, int position) {
+                        viewPager.setCurrentItem(position,true);
+                    }
+                }));
             }
         }
-
-
     }
 
     public static class ThumbnailsPosition{
@@ -102,6 +158,10 @@ public class ImageViewer extends LinearLayout{
 
 
     public class ImageViewConfig{
+        /** 缩略图图片地址 **/
+        private ArrayList<String> thumbnails;
+        /** 大图图片地址 **/
+        private ArrayList<String> bigImages;
         /** 图片是否可伸缩 **/
         private boolean isScaleable = true;
 
@@ -118,6 +178,24 @@ public class ImageViewer extends LinearLayout{
 
         /** 大图和小图的布局方式 一种是垂直 一种是水平  LinearLayout.HORIZONTAL   LinearLayout.VERTICAL **/
         private int direction = LinearLayout.VERTICAL;
+
+        public ArrayList<String> getThumbnails() {
+            return thumbnails;
+        }
+
+        public ImageViewConfig setThumbnails(ArrayList<String> thumbnails) {
+            this.thumbnails = thumbnails;
+            return this;
+        }
+
+        public ArrayList<String> getBigImages() {
+            return bigImages;
+        }
+
+        public ImageViewConfig setBigImages(ArrayList<String> bigImages) {
+            this.bigImages = bigImages;
+            return this;
+        }
 
         public boolean isScaleable() {
             return isScaleable;
