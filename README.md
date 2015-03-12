@@ -8,3 +8,5 @@ This project base on Universal ImageLoader and PhotoView.
 
 Now the project get it basic function worked.
 
+![alt tag](https://github.com/comk/ImageViewer/blob/master/app/ImageViewer_screenshot.png)
+
